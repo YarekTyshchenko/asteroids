@@ -19,6 +19,7 @@ interface Ship {
   thrust: number,
   rotation: number,
 }
+const newShip: (id: string) => Ship = id => ({ id, bearing: 0, position: {x: 0, y: 0}, velocity: {x: 0, y: 0}, thrust: 0, rotation: 0 })
 
 interface Shell {
   owner: string,
@@ -27,11 +28,10 @@ interface Shell {
   velocity: number,
   ttl: number,
 }
-
 const MAX_SPEED = 1
 
 let shells: Shell[] = new Array<Shell>()
-const fire: (s: Ship) => Shell = ship => {
+const newShell: (s: Ship) => Shell = ship => {
   const shellVector = {
     x: MAX_SPEED*2 * Math.sin(ship.bearing) + ship.velocity.x,
     y: MAX_SPEED*2 * Math.cos(ship.bearing) + ship.velocity.y,
@@ -81,7 +81,7 @@ io.on("connection", socket => {
   const id = socket.id
   console.log(`${id} a user connected`);
   if (!ships.has(id)) {
-    ships.set(id, { id, bearing: 0, position: {x: 0, y: 0}, velocity: {x: 0, y: 0}, thrust: 0, rotation: 0 })
+    ships.set(id, newShip(id))
   }
 
   socket.on("command", command => {
@@ -93,7 +93,7 @@ io.on("connection", socket => {
       case "turn-right": ship.rotation = -0.05; break
       case "turn-end": ship.rotation = 0; break
       case "fire": {
-        shells.push(fire(ship))
+        shells.push(newShell(ship))
         break;
       }
     }
