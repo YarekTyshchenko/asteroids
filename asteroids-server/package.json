@@ -1,5 +1,5 @@
 {
-  "name": "asteroids",
+  "name": "asteroids-server",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -9,6 +9,10 @@
     "express": "^4.17.1",
     "nodemon": "^2.0.6",
     "socket.io": "^2.3.0",
+    "tsc-watch": "^4.2.9",
     "typescript": "^4.0.5"
+  },
+  "scripts": {
+      "start": "tsc-watch --project . --outDir ./dist --onSuccess 'node ./dist/server.js'"
   }
 }

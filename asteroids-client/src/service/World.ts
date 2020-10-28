@@ -1,8 +1,13 @@
+export interface Vector {
+  x: number,
+  y: number,
+}
+
 export interface Ship {
   id: string,
   bearing: number,
-  x: number,
-  y: number,
+  position: Vector,
+  velocity: Vector,
   thrust: number,
   turn: number,
 }
@@ -10,8 +15,7 @@ export interface Ship {
 export interface Shell {
   owner: string,
   bearing: number,
-  x: number,
-  y: number,
+  position: Vector,
   ttl: number,
 }
 

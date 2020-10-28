@@ -86,9 +86,9 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
   return {
     ship: (s: Ship) => {
       ctx.fillStyle = "white"
-      const l = local(s)
+      const l = local(s.position)
       ctx.fillText(s.id, l.x, l.y)
-      const bearing = local({x: s.x + 30 * Math.sin(s.bearing), y: s.y + 30 * Math.cos(s.bearing)})
+      const bearing = local({x: s.position.x + 30 * Math.sin(s.bearing), y: s.position.y + 30 * Math.cos(s.bearing)})
 
       ctx.lineWidth = 1
       ctx.strokeStyle = "green"
@@ -101,11 +101,11 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       ctx.lineWidth = 1
       ctx.strokeStyle = "red"
       ctx.beginPath()
-      const l = local(s)
+      const l = local(s.position)
       ctx.moveTo(l.x, l.y)
 
       const bearing = local({
-        x: s.x + 5 * Math.sin(s.bearing), y: s.y + 5 * Math.cos(s.bearing)
+        x: s.position.x + 5 * Math.sin(s.bearing), y: s.position.y + 5 * Math.cos(s.bearing)
       })
       ctx.lineTo(bearing.x, bearing.y)
       ctx.stroke()
