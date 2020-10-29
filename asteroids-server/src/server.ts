@@ -16,11 +16,11 @@ let fullFrameTime: [number, number] = [0, 0]
 const timer = setInterval(() => {
   const t = process.hrtime()
   recalculateShips(ships)
-  shells = recalculateShells(shells)
+  shells = recalculateShells(shells, Array.from(ships.values()))
   const frameCalculationTime = process.hrtime(t)
 
   io.emit("update", {
-    ships: Array.from(ships.values()), //Array.from(ships.values()).slice(0, 10),// Array.from(ships.values()),
+    ships: Array.from(ships.values()),
     shells: shells,
     frameCalculationTime: hrtime(frameCalculationTime),
     fullFrameTime: hrtime(fullFrameTime),
@@ -73,7 +73,7 @@ const server = httpServer.listen(3001, "0.0.0.0");
 
 // Simulate
 const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire"]
-for (let i = 0; i < 300; i++) {
+for (let i = 0; i < 30; i++) {
   const id = `sim-${i}`
   onConnect(id)
   setInterval(() => {

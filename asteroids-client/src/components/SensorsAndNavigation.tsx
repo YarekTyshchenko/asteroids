@@ -76,22 +76,32 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     ctx.stroke();
   }
 
+  const shipBodyParts = [
+    new Victor(10, 0),
+    new Victor(-5, -5),
+    new Victor(-5, 5)
+  ]
+  const thrustConeParts = [
+    new Victor(-5, -2),
+    new Victor(-10, 0),
+    new Victor(-5, 2),
+  ]
+
   return {
     ship: (s: Ship) => {
       ctx.fillStyle = "white"
       const l = local(s.position)
+      const localVector = new Victor(l.x, l.y)
       //ctx.fillText(s.id, l.x, l.y)
+      // ctx.beginPath()
+      // ctx.arc(l.x, l.y, 7, 0, 2 * Math.PI, false)
+      // ctx.stroke()
+
+      // Ship
       ctx.lineWidth = 1
       ctx.strokeStyle = "white"
 
-      const shipVectorArray = [
-        new Victor(10, 0),
-        new Victor(-5, -5),
-        new Victor(-5, 5)
-      ]
-
-      shipVectorArray.map(v => v.rotate(s.bearing).add(new Victor(l.x, l.y)))
-      const [nose, left, right] = shipVectorArray
+      const [nose, left, right] = shipBodyParts.map(v => v.clone().rotate(s.bearing).add(new Victor(l.x, l.y)))
       ctx.beginPath()
       // nose
       ctx.moveTo(nose.x, nose.y)
@@ -102,9 +112,15 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       ctx.lineTo(nose.x, nose.y)
       ctx.stroke()
 
-      // ctx.beginPath()
-      // ctx.arc(l.x, l.y, 7, 0, 2 * Math.PI, false)
-      // ctx.stroke()
+      // thrust cone
+      if (s.thrust > 0) {
+        const [left, tip, right] = thrustConeParts.map(v => v.clone().rotate(s.bearing).add(localVector))
+        ctx.beginPath()
+        ctx.moveTo(left.x, left.y)
+        ctx.lineTo(tip.x, tip.y)
+        ctx.lineTo(right.x, right.y)
+        ctx.stroke()
+      }
     },
     shell: (s: Shell) => {
       ctx.lineWidth = 1
