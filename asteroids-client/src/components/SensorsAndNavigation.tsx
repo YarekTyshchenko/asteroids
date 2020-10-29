@@ -1,4 +1,5 @@
 import * as React from "react";
+import Victor from "victor";
 import {Shell, Ship, World} from "../service/World";
 import {resizeCanvasToDisplaySize, useAnimationFrame} from "../util";
 
@@ -12,9 +13,8 @@ const SensorsAndNavigation: React.FC<{world: World, zoom: number}> = ({world, zo
 
   useAnimationFrame(delta => {
     const timeMs = Date.now()
-    const contacts = world.ships(timeMs);
+    const ships = world.ships(timeMs);
     const shells = world.shells()
-    //const player = world.player(timeMs);
     const canvas = canvasRef.current
     if (canvas) {
       resizeCanvasToDisplaySize(canvas)
@@ -22,21 +22,14 @@ const SensorsAndNavigation: React.FC<{world: World, zoom: number}> = ({world, zo
       const drawer = canvasDrawer(ctx, {x: 0, y: 0}, zoom)
       drawer.centreGraduation()
       drawer.grid()
-      // drawer.sensorRange(player.current, 100/zoom)
-      // drawer.sensorRange({x: player.ship.midX, y: player.ship.midY}, 100/zoom)
-      // drawer.sensorRange({x: player.ship.fromX, y: player.ship.fromY}, 100/zoom)
       drawer.text(`Delta: ${delta}`, 10, 10)
       drawer.text(world.debug(), 10, 20)
-      // drawer.shipMovementVector(player)
-      // drawer.greenLine({x: player.ship.toX, y: player.ship.toY}, world.greenLine())
-      contacts.forEach(s => {
-        // drawer.shipMovementVector(s)
+      ships.forEach(s => {
         drawer.ship(s)
       })
       shells.forEach(s => {
         drawer.shell(s)
       })
-      // drawer.ship(player)
     }
   })
   return (
@@ -87,14 +80,30 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     ship: (s: Ship) => {
       ctx.fillStyle = "white"
       const l = local(s.position)
-      ctx.fillText(s.id, l.x, l.y)
-      const bearing = local({x: s.position.x + 30 * Math.sin(s.bearing), y: s.position.y + 30 * Math.cos(s.bearing)})
-
+      //ctx.fillText(s.id, l.x, l.y)
       ctx.lineWidth = 1
-      ctx.strokeStyle = "green"
+      ctx.strokeStyle = "white"
+
+      const shipVectorArray = [
+        new Victor(10, 0),
+        new Victor(-5, -5),
+        new Victor(-5, 5)
+      ]
+
+      shipVectorArray.map(v => v.rotate(s.bearing).add(new Victor(l.x, l.y)))
+      const [nose, left, right] = shipVectorArray
       ctx.beginPath()
-      ctx.moveTo(l.x, l.y)
-      ctx.lineTo(bearing.x, bearing.y)
+      // nose
+      ctx.moveTo(nose.x, nose.y)
+      // left
+      ctx.lineTo(left.x, left.y)
+      // right
+      ctx.lineTo(right.x, right.y)
+      ctx.lineTo(nose.x, nose.y)
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.arc(l.x, l.y, 10, 0, 2 * Math.PI, false)
       ctx.stroke()
     },
     shell: (s: Shell) => {
@@ -102,23 +111,9 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       ctx.strokeStyle = "red"
       ctx.beginPath()
       const l = local(s.position)
+      const shellTip = new Victor(5, 0).rotate(s.bearing).add(new Victor(l.x, l.y))
       ctx.moveTo(l.x, l.y)
-
-      const bearing = local({
-        x: s.position.x + 5 * Math.sin(s.bearing), y: s.position.y + 5 * Math.cos(s.bearing)
-      })
-      ctx.lineTo(bearing.x, bearing.y)
-      ctx.stroke()
-    },
-    greenLine: (f: Point, v: Point) => {
-      drawLine(f.x, f.y, f.x + v.x, f.y + v.y, "#00ff00")
-    },
-    sensorRange: (p: Point, radius: number) => {
-      const l = local(p)
-      ctx.beginPath()
-      ctx.strokeStyle = "#555555"
-      ctx.lineWidth = 1
-      ctx.arc(l.x+.5, l.y, radius, 0, 2 * Math.PI, false)
+      ctx.lineTo(shellTip.x, shellTip.y)
       ctx.stroke()
     },
     centreGraduation: () => {

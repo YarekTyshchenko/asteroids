@@ -22,8 +22,7 @@ export interface Shell {
 export interface World {
   ships: (timeMs: number) => Ship[],
   shells: () => Shell[],
-  updateShip: (s: Ship) => void,
-  updateShells: (shells: Shell[]) => void,
+  update: (ships: Ship[], shells: Shell[], st: number, ft: number) => void,
   debug: () => string,
 }
 
@@ -32,19 +31,18 @@ export interface World {
  * Must include state machine for movement based on game time.
  */
 const createWorld: () => World = () => {
-  const ships = new Map<string, Ship>()
+  let ships = new Array<Ship>()
   let shells = new Array<Shell>()
   let debug = "Debug"
 
   return {
     debug: () => debug,
-    ships: (t) => Array.from(ships.values()),
+    ships: (t) => ships,
     shells: () => shells,
-    updateShip: (s: Ship) => {
-      ships.set(s.id, s);
-    },
-    updateShells: s => {
-      shells = s
+    update: (ships2: Ship[], shells2: Shell[], st: number, ft: number) => {
+      ships = ships2
+      shells = shells2
+      debug = `Simulation time: ${st}ms, Full frame time: ${ft}ms (${Math.round(ft/16.6*100)}%)`
     },
   }
 }
