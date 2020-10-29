@@ -11,8 +11,7 @@ Todo:
 
 Serverside:
 
-- Collision detection for craft and shells
-- physics for bumping
+- Collision detection for shells
 - Add asteroids
 - Health
 - Minimap where player and asteroids are

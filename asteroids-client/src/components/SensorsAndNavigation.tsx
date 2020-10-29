@@ -102,9 +102,9 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       ctx.lineTo(nose.x, nose.y)
       ctx.stroke()
 
-      ctx.beginPath()
-      ctx.arc(l.x, l.y, 10, 0, 2 * Math.PI, false)
-      ctx.stroke()
+      // ctx.beginPath()
+      // ctx.arc(l.x, l.y, 7, 0, 2 * Math.PI, false)
+      // ctx.stroke()
     },
     shell: (s: Shell) => {
       ctx.lineWidth = 1
