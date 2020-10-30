@@ -61,7 +61,7 @@ const createWorld: () => World = () => {
       sendTimeArray.unshift(data.sendTime)
       if (sendTimeArray.length > 60) sendTimeArray.pop()
       const sendTime = sendTimeArray.reduce((a, i) => a + i, 0)/60
-      debug = `Delay: ${timeDelta}ms Simulation time: ${rp(data.simulationTime)}ms (${rp(simTime)}ms) ${rp(simTime/16.6*100)}%, Inter-frame delay ${rp(data.simulationFrameGap)}ms, sendTime: ${rp(data.sendTime)}ms (${rp(sendTime)}ms) ${rp(sendTime/16.6*100)}%, Inter-frame delay: ${rp(data.sendTimeFrameGap)}ms`
+      debug = `Delay: ${rp(timeDelta)}ms Simulation time: ${rp(data.simulationTime)}ms (${rp(simTime)}ms) ${rp(simTime/16.6*100)}%, Inter-frame delay ${rp(data.simulationFrameGap)}ms, sendTime: ${rp(data.sendTime)}ms (${rp(sendTime)}ms) ${rp(sendTime/16.6*100)}%, Inter-frame delay: ${rp(data.sendTimeFrameGap)}ms`
     },
   }
 }
