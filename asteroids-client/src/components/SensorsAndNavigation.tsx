@@ -20,8 +20,6 @@ const SensorsAndNavigation: React.FC<{world: World, zoom: number}> = ({world, zo
       resizeCanvasToDisplaySize(canvas)
       const ctx = canvas.getContext('2d')!
       const drawer = canvasDrawer(ctx, {x: 0, y: 0}, zoom)
-      drawer.centreGraduation()
-      drawer.grid()
       drawer.text(`Delta: ${delta}`, 10, 10)
       drawer.text(world.debug(), 10, 20)
       ships.forEach(s => {
