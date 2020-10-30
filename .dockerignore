@@ -1,0 +1,4 @@
+node_modules
+.git
+asteroids-client
+asteroids-server/node_modules
