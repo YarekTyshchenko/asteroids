@@ -1,8 +1,7 @@
 FROM node:10
 
-WORKDIR /
+WORKDIR app
 COPY asteroids-server ./
-WORKDIR asteroids-server
 
 RUN yarn
 RUN yarn build
