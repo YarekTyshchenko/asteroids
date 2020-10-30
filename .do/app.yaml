@@ -1,8 +1,9 @@
 name: asteroids
 services:
-- environment_slug: node-js
+- name: asteroids-server
+  source_dir: asteroids-server
+  environment_slug: node-js
   github:
     branch: master
     deploy_on_push: true
     repo: yarektyshchenko/asteroids
-  name: asteroids-server
