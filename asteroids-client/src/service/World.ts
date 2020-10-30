@@ -22,7 +22,7 @@ export interface Shell {
 export interface World {
   ships: (timeMs: number) => Ship[],
   shells: () => Shell[],
-  update: (ships: Ship[], shells: Shell[], st: number, ft: number) => void,
+  update: (ships: Ship[], shells: Shell[], st: number, ft: number, d: number) => void,
   debug: () => string,
 }
 
@@ -33,16 +33,22 @@ export interface World {
 const createWorld: () => World = () => {
   let ships = new Array<Ship>()
   let shells = new Array<Shell>()
+  let frameTimeArray = new Array<number>()
   let debug = "Debug"
 
   return {
     debug: () => debug,
     ships: (t) => ships,
     shells: () => shells,
-    update: (ships2: Ship[], shells2: Shell[], st: number, ft: number) => {
+    update: (ships2: Ship[], shells2: Shell[], st: number, ft: number, d: number) => {
       ships = ships2
       shells = shells2
-      debug = `Simulation time: ${st}ms, Full frame time: ${ft}ms (${Math.round(ft/16.6*100)}%)`
+      frameTimeArray.unshift(ft)
+      if (frameTimeArray.length > 60) {
+        frameTimeArray.pop()
+      }
+      const tft = frameTimeArray.reduce((accu, i) => accu + i, 0)/60
+      debug = `Simulation time: ${String(st).padStart(3)}ms, Full frame time: ${String(ft).padStart(3)}ms (${String(Math.round(tft/16.6*100)).padStart(3)}%), delay ${Math.round(d/16.6*100)}`
     },
   }
 }

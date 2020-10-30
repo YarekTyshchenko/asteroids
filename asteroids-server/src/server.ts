@@ -1,22 +1,34 @@
 import * as express from "express";
 import * as http from "http";
+import RBush from "rbush";
 import * as socketio from "socket.io";
+import {COLLISION_DISTANCE} from "./constants";
+import {log} from "./logger";
 import {newShell, recalculateShells, Shell} from "./model/shell";
 import {newShip, recalculateShips, Ship} from "./model/ship";
+import Victor = require("victor");
 
 const app = express();
 const httpServer = new http.Server(app)
 const io = socketio(httpServer)
 
-let shells: Shell[] = new Array<Shell>()
+export class ShipRBush extends RBush<Ship> {
+  toBBox(s: Ship) { return { minX: s.position.x-COLLISION_DISTANCE/2, minY: s.position.y-COLLISION_DISTANCE/2, maxX: s.position.x+COLLISION_DISTANCE/2, maxY: s.position.y+COLLISION_DISTANCE/2 }; }
+  compareMinX(a: Ship, b: Ship) { return a.position.x - b.position.x; }
+  compareMinY(a: Ship, b: Ship) { return a.position.y - b.position.y; }
+}
+
+const shipsTree = new ShipRBush()
 const ships: Map<string, Ship> = new Map<string, Ship>()
+let shells: Shell[] = new Array<Shell>()
 
 let fullFrameTime: [number, number] = [0, 0]
-
+let t: [number, number] = [0, 0]
 const timer = setInterval(() => {
-  const t = process.hrtime()
-  recalculateShips(ships)
-  shells = recalculateShells(shells, Array.from(ships.values()))
+  const delayBetweenFrames = process.hrtime(t)
+  t = process.hrtime()
+  recalculateShips(ships, shipsTree)
+  shells = recalculateShells(shells, Array.from(ships.values()), shipsTree)
   const frameCalculationTime = process.hrtime(t)
 
   io.emit("update", {
@@ -24,6 +36,7 @@ const timer = setInterval(() => {
     shells: shells,
     frameCalculationTime: hrtime(frameCalculationTime),
     fullFrameTime: hrtime(fullFrameTime),
+    delayBetweenFrames: hrtime(delayBetweenFrames),
   })
   fullFrameTime = process.hrtime(t)
 }, 1000/60)
@@ -31,10 +44,28 @@ const timer = setInterval(() => {
 const hrtime: (a: [number, number]) => number = a => Math.round(a[0] * 1000 + (a[1] / 1000000))
 
 const onConnect = (id: string) => {
-  console.log(`${id} a user connected`);
+  //log.info(`${id} a user connected`);
   if (!ships.has(id)) {
     // Put a new ship somewhere where it won't collide
-    ships.set(id, newShip(id))
+    let found: Ship | undefined = undefined
+    let r = 10
+    do {
+      const ship = newShip(id, r)
+      const collide = shipsTree.collides({
+        minX: ship.position.x - COLLISION_DISTANCE,
+        maxX: ship.position.x + COLLISION_DISTANCE,
+        minY: ship.position.y - COLLISION_DISTANCE,
+        maxY: ship.position.y + COLLISION_DISTANCE,
+      })
+      if (!collide) {
+        found = ship
+      } else {
+        //log.info("Spawn space occupied, trying again")
+        r += 10
+      }
+    } while (!found)
+    ships.set(id, found)
+    shipsTree.insert(found)
   }
 }
 
@@ -54,6 +85,8 @@ const onCommand = (id: string, command: string) => {
 }
 
 const onDisconnect = (id: string) => {
+  const ship = ships.get(id)
+  shipsTree.remove(ship)
   ships.delete(id)
   shells = shells.filter(s => s.owner != id)
 }
@@ -73,7 +106,7 @@ const server = httpServer.listen(3001, "0.0.0.0");
 
 // Simulate
 const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire"]
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 1000; i++) {
   const id = `sim-${i}`
   onConnect(id)
   setInterval(() => {
@@ -81,3 +114,4 @@ for (let i = 0; i < 30; i++) {
     onCommand(id, c)
   }, 500)
 }
+log.info("Sims loaded")

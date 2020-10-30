@@ -10,6 +10,7 @@ interface UpdateData {
   shells: Shell[],
   frameCalculationTime: number,
   fullFrameTime: number,
+  delayBetweenFrames: number,
 }
 
 const WorldProvider: React.FC = ({children}) => {
@@ -18,7 +19,7 @@ const WorldProvider: React.FC = ({children}) => {
       <SocketConsumer>
         { socket => {
           socket.on("update", (data: UpdateData) => {
-            world.update(data.ships, data.shells, data.frameCalculationTime, data.fullFrameTime)
+            world.update(data.ships, data.shells, data.frameCalculationTime, data.fullFrameTime, data.delayBetweenFrames)
           })
           return (<>{children}</>)
         }}
