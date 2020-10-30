@@ -22,23 +22,34 @@ const shipsTree = new ShipRBush()
 const ships: Map<string, Ship> = new Map<string, Ship>()
 let shells: Shell[] = new Array<Shell>()
 
-let fullFrameTime: [number, number] = [0, 0]
-let t: [number, number] = [0, 0]
-const timer = setInterval(() => {
-  const delayBetweenFrames = process.hrtime(t)
-  t = process.hrtime()
+let simulationTimeStart: [number, number] = [0, 0]
+let simulationTime: [number, number]
+let simulationFrameGap: [number, number]
+// Simulation
+setInterval(() => {
+  simulationFrameGap = process.hrtime(simulationTimeStart)
+  simulationTimeStart = process.hrtime()
   recalculateShips(ships, shipsTree)
-  shells = recalculateShells(shells, Array.from(ships.values()), shipsTree)
-  const frameCalculationTime = process.hrtime(t)
+  shells = recalculateShells(shells, shipsTree)
+  simulationTime = process.hrtime(simulationTimeStart)
+}, 1000/60)
 
+let sendTimeStart: [number, number] = [0, 0]
+let sendTime: [number, number] = [0, 0]
+// Data exchange
+setInterval(() => {
+  const delayBetweenFrames = process.hrtime(sendTimeStart)
+  sendTimeStart = process.hrtime()
   io.emit("update", {
+    time: Date.now(),
     ships: Array.from(ships.values()),
     shells: shells,
-    frameCalculationTime: hrtime(frameCalculationTime),
-    fullFrameTime: hrtime(fullFrameTime),
-    delayBetweenFrames: hrtime(delayBetweenFrames),
+    simulationTime: hrtime(simulationTime),
+    simulationFrameGap: hrtime(delayBetweenFrames),
+    sendTime: hrtime(sendTime),
+    sendTimeFrameGap: hrtime(delayBetweenFrames)
   })
-  fullFrameTime = process.hrtime(t)
+  sendTime = process.hrtime(sendTimeStart)
 }, 1000/60)
 
 const hrtime: (a: [number, number]) => number = a => Math.round(a[0] * 1000 + (a[1] / 1000000))
@@ -105,8 +116,8 @@ io.on("connection", socket => {
 const server = httpServer.listen(3001, "0.0.0.0");
 
 // Simulate
-const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire"]
-for (let i = 0; i < 1000; i++) {
+const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire", "turn-end"]
+for (let i = 0; i < 500; i++) {
   const id = `sim-${i}`
   onConnect(id)
   setInterval(() => {

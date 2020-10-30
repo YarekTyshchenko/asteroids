@@ -64,18 +64,7 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     ctx.moveTo(0, y+.5)
     ctx.lineTo(width, y+.5)
   }
-
-  const drawLine = (x1: number, y1: number, x2: number, y2: number, colour: string) => {
-    ctx.beginPath()
-    ctx.strokeStyle = colour
-    ctx.lineWidth = 1
-    const f = local({x: x1, y: y1})
-    ctx.moveTo(f.x, f.y)
-    const t = local({x: x2, y: y2})
-    ctx.lineTo(t.x, t.y)
-    ctx.stroke();
-  }
-
+  
   const shipBodyParts = [
     new Victor(10, 0),
     new Victor(-5, -5),

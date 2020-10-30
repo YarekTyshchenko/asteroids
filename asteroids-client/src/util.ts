@@ -42,17 +42,6 @@ export const useAnimationFrame = (callback: (a: number) => void) => {
   }, [requestRef, previousTimeRef, callback]); // Make sure the effect runs only once
 }
 
-//10, 20, 30
-export const midpointFraction = (from: number, t: number, to: number): number => {
-  const upper = to - from
-  const mid = t - from
-  return mid / upper;
-}
-
-export const correctByFraction = (from: number, to: number, fraction: number): number => {
-  return ((to - from) * fraction) + from
-}
-
 // Hook
 export function useKeyPress(targetKey: string) {
   // State for keeping track of whether key is pressed

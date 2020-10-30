@@ -25,7 +25,7 @@ export const newShell: (s: Ship) => Shell = ship => {
   }
 }
 
-export const recalculateShells: (shells: Shell[], ships: Ship[], shipsTree: ShipRBush) => Shell[] = (shells, ships, shipsTree) => {
+export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => Shell[] = (shells, shipsTree) => {
   for(const shell of shells.values()) {
     const shellPosition = new Victor(shell.velocity, 0).rotate(shell.bearing).add(new Victor(shell.position.x, shell.position.y))
     shell.position.x = shellPosition.x

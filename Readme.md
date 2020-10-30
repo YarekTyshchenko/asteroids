@@ -18,3 +18,4 @@ Serverside:
 Clientside:
 - Scroll the map when player out of view
 - Add minimap
+

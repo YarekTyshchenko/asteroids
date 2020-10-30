@@ -5,12 +5,14 @@ import {SocketConsumer} from "./SocketContext";
 const world = createWorld()
 const WorldContext = React.createContext<World>(world)
 
-interface UpdateData {
+export interface UpdateData {
   ships: Ship[],
   shells: Shell[],
-  frameCalculationTime: number,
-  fullFrameTime: number,
-  delayBetweenFrames: number,
+  simulationTime: number,
+  simulationFrameGap: number,
+  sendTime: number,
+  sendTimeFrameGap: number,
+  time: number,
 }
 
 const WorldProvider: React.FC = ({children}) => {
@@ -19,7 +21,7 @@ const WorldProvider: React.FC = ({children}) => {
       <SocketConsumer>
         { socket => {
           socket.on("update", (data: UpdateData) => {
-            world.update(data.ships, data.shells, data.frameCalculationTime, data.fullFrameTime, data.delayBetweenFrames)
+            world.update(data)
           })
           return (<>{children}</>)
         }}
