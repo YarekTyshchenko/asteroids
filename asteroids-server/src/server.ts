@@ -116,13 +116,13 @@ io.on("connection", socket => {
 const server = httpServer.listen(3001, "0.0.0.0");
 
 // Simulate
-const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire", "turn-end"]
-for (let i = 0; i < 500; i++) {
-  const id = `sim-${i}`
-  onConnect(id)
-  setInterval(() => {
-    const c = commands[Math.round(Math.random()*(commands.length-1))]
-    onCommand(id, c)
-  }, 500)
-}
-log.info("Sims loaded")
+// const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire", "turn-end"]
+// for (let i = 0; i < 500; i++) {
+//   const id = `sim-${i}`
+//   onConnect(id)
+//   setInterval(() => {
+//     const c = commands[Math.round(Math.random()*(commands.length-1))]
+//     onCommand(id, c)
+//   }, 500)
+// }
+// log.info("Sims loaded")
