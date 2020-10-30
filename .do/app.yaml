@@ -2,7 +2,7 @@ name: asteroids
 services:
 - name: asteroids-server
   source_dir: asteroids-server
-  dockerfile_path: asteroids-server/Dockerfile
+  dockerfile_path: Dockerfile
   environment_slug: node-js
   github:
     branch: master
