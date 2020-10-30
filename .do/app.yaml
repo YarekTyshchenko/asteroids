@@ -3,7 +3,7 @@ services:
 - name: asteroids-server
   dockerfile_path: Dockerfile
   health_check:
-    http_path: /socket.io/
+    http_path: /socket.io/socket.io.js
   github:
     branch: master
     deploy_on_push: true
