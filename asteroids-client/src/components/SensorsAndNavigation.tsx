@@ -64,7 +64,7 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     ctx.moveTo(0, y+.5)
     ctx.lineTo(width, y+.5)
   }
-  
+
   const shipBodyParts = [
     new Victor(10, 0),
     new Victor(-5, -5),
