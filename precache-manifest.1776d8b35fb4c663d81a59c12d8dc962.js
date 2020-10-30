@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9f1ebfaf78adfaa7aceba22acaa4a6d4",
+    "revision": "8e69e8bc9c0bce7242b800406816e7fb",
     "url": "/asteroids/index.html"
   },
   {
