@@ -2,8 +2,7 @@ name: asteroids
 services:
 - name: asteroids-server
   source_dir: asteroids-server
-  build_command: "yarn"
-  run_command: "yarn start"
+  dockerfile_path: asteroids-server/Dockerfile
   environment_slug: node-js
   github:
     branch: master

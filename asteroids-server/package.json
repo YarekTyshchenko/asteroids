@@ -20,7 +20,8 @@
     "winston": "^3.3.3"
   },
   "scripts": {
-    "start": "tsc-watch --project . --outDir ./dist --onSuccess 'node ./dist/server.js'",
+    "build": "tsc --project . --outDir ./dist",
+    "watch": "tsc-watch --project . --outDir ./dist --onSuccess 'node ./dist/server.js'",
     "test": "jest"
   },
   "devDependencies": {
