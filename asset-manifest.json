@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/asteroids/static/css/main.b16ea329.chunk.css",
+    "main.js": "/asteroids/static/js/main.cd228f67.chunk.js",
+    "main.js.map": "/asteroids/static/js/main.cd228f67.chunk.js.map",
+    "runtime-main.js": "/asteroids/static/js/runtime-main.3e24850d.js",
+    "runtime-main.js.map": "/asteroids/static/js/runtime-main.3e24850d.js.map",
+    "static/js/2.bd3dff3e.chunk.js": "/asteroids/static/js/2.bd3dff3e.chunk.js",
+    "static/js/2.bd3dff3e.chunk.js.map": "/asteroids/static/js/2.bd3dff3e.chunk.js.map",
+    "index.html": "/asteroids/index.html",
+    "precache-manifest.d5c0592e78d033fd9dd82c7876917551.js": "/asteroids/precache-manifest.d5c0592e78d033fd9dd82c7876917551.js",
+    "service-worker.js": "/asteroids/service-worker.js",
+    "static/css/main.b16ea329.chunk.css.map": "/asteroids/static/css/main.b16ea329.chunk.css.map",
+    "static/js/2.bd3dff3e.chunk.js.LICENSE": "/asteroids/static/js/2.bd3dff3e.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3e24850d.js",
+    "static/js/2.bd3dff3e.chunk.js",
+    "static/css/main.b16ea329.chunk.css",
+    "static/js/main.cd228f67.chunk.js"
+  ]
+}
