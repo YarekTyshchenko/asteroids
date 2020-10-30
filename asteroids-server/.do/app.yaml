@@ -1,4 +1,4 @@
-name: asteroids-server
+name: asteroids
 services:
 - environment_slug: node-js
   github:
