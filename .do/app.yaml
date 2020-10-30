@@ -1,9 +1,9 @@
 name: asteroids
 services:
 - name: asteroids-server
-  source_dir: asteroids-server
   dockerfile_path: Dockerfile
-  environment_slug: node-js
+  health_check:
+    http_path: /socket.io/
   github:
     branch: master
     deploy_on_push: true
