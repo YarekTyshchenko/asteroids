@@ -55,7 +55,7 @@ setInterval(() => {
 const hrtime: (a: [number, number]) => number = a => Math.round(a[0] * 1000 + (a[1] / 1000000))
 
 const onConnect = (id: string) => {
-  //log.info(`${id} a user connected`);
+  log.info(`User ${id} connected`);
   if (!ships.has(id)) {
     // Put a new ship somewhere where it won't collide
     let found: Ship | undefined = undefined
@@ -96,6 +96,7 @@ const onCommand = (id: string, command: string) => {
 }
 
 const onDisconnect = (id: string) => {
+  log.info(`User ${id} disconnected`)
   const ship = ships.get(id)
   shipsTree.remove(ship)
   ships.delete(id)
@@ -113,7 +114,9 @@ io.on("connection", socket => {
   })
 });
 
-const server = httpServer.listen(3001, "0.0.0.0");
+const server = httpServer.listen(3001, "0.0.0.0", () => {
+  log.info("Server listening")
+});
 
 // Simulate
 // const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire", "turn-end"]
