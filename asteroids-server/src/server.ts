@@ -6,7 +6,6 @@ import {COLLISION_DISTANCE} from "./constants";
 import {log} from "./logger";
 import {newShell, recalculateShells, Shell} from "./model/shell";
 import {newShip, recalculateShips, Ship} from "./model/ship";
-import Victor = require("victor");
 
 const app = express();
 const httpServer = new http.Server(app)
@@ -30,7 +29,17 @@ setInterval(() => {
   simulationFrameGap = process.hrtime(simulationTimeStart)
   simulationTimeStart = process.hrtime()
   recalculateShips(ships, shipsTree)
-  shells = recalculateShells(shells, shipsTree)
+  const shellResult = recalculateShells(shells, shipsTree)
+  shells = shellResult.shells
+  shellResult.hits.forEach(hit => {
+    io.emit("shellHitShip", hit)
+    // Respawn ship
+    const ship = ships.get(hit.target)
+    shipsTree.remove(ship)
+    const respawn = spawn(ship.id, 400)
+    ships.set(respawn.id, respawn)
+    shipsTree.insert(respawn)
+  })
   simulationTime = process.hrtime(simulationTimeStart)
 }, 1000/60)
 
@@ -54,29 +63,32 @@ setInterval(() => {
 
 const hrtime: (a: [number, number]) => number = a => Math.round(a[0] * 1000 + (a[1] / 1000000))
 
+const spawn = (id: string, r: number = 10) => {
+  // Put a new ship somewhere where it won't collide
+  do {
+    const ship = newShip(id, r)
+    const collide = shipsTree.collides({
+      minX: ship.position.x - COLLISION_DISTANCE,
+      maxX: ship.position.x + COLLISION_DISTANCE,
+      minY: ship.position.y - COLLISION_DISTANCE,
+      maxY: ship.position.y + COLLISION_DISTANCE,
+    })
+    if (!collide) {
+      return ship
+    } else {
+      //log.info("Spawn space occupied, trying again")
+      r += 10
+    }
+  } while (true)
+}
+
 const onConnect = (id: string) => {
   log.info(`User ${id} connected`);
   if (!ships.has(id)) {
     // Put a new ship somewhere where it won't collide
-    let found: Ship | undefined = undefined
-    let r = 10
-    do {
-      const ship = newShip(id, r)
-      const collide = shipsTree.collides({
-        minX: ship.position.x - COLLISION_DISTANCE,
-        maxX: ship.position.x + COLLISION_DISTANCE,
-        minY: ship.position.y - COLLISION_DISTANCE,
-        maxY: ship.position.y + COLLISION_DISTANCE,
-      })
-      if (!collide) {
-        found = ship
-      } else {
-        //log.info("Spawn space occupied, trying again")
-        r += 10
-      }
-    } while (!found)
-    ships.set(id, found)
-    shipsTree.insert(found)
+    const ship = spawn(id)
+    ships.set(id, ship)
+    shipsTree.insert(ship)
   }
 }
 
@@ -120,7 +132,7 @@ const server = httpServer.listen(3001, "0.0.0.0", () => {
 
 // Simulate
 // const commands = ["thrust-start", "thrust-end", "turn-left", "turn-right", "fire", "turn-end"]
-// for (let i = 0; i < 500; i++) {
+// for (let i = 0; i < 101; i++) {
 //   const id = `sim-${i}`
 //   onConnect(id)
 //   setInterval(() => {

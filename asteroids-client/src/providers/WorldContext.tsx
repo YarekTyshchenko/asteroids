@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createWorld, Shell, Ship, World} from "../service/World";
+import {createWorld, Shell, Ship, Vector, World} from "../service/World";
 import {SocketConsumer} from "./SocketContext";
 
 const world = createWorld()
@@ -15,6 +15,12 @@ export interface UpdateData {
   time: number,
 }
 
+export interface HitShip {
+  owner: string
+  position: Vector
+  target: string
+}
+
 const WorldProvider: React.FC = ({children}) => {
   return (
     <WorldContext.Provider value={world}>
@@ -22,6 +28,14 @@ const WorldProvider: React.FC = ({children}) => {
         { socket => {
           socket.on("update", (data: UpdateData) => {
             world.update(data)
+          })
+          socket.on("shellHitShip", (data: HitShip) => {
+            world.addHit(data)
+            if (data.target == socket.id) {
+              world.decrementScore()
+            } else if (data.owner == socket.id) {
+              world.incrementScore()
+            }
           })
           return (<>{children}</>)
         }}

@@ -1,4 +1,4 @@
-import {UpdateData} from "../providers/WorldContext";
+import {HitShip, UpdateData} from "../providers/WorldContext";
 
 export interface Vector {
   x: number,
@@ -21,11 +21,21 @@ export interface Shell {
   ttl: number,
 }
 
+export interface Hit {
+  position: Vector
+  phase: number
+}
+
 export interface World {
-  ships: (timeMs: number) => Ship[],
-  shells: () => Shell[],
-  update: (data: UpdateData) => void,
-  debug: () => string,
+  ships: (timeMs: number) => Ship[]
+  shells: () => Shell[]
+  hits: () => Hit[]
+  update: (data: UpdateData) => void
+  addHit: (hit: HitShip) => void
+  incrementScore: () => void
+  decrementScore: () => void
+  score: () => number
+  debug: () => string
 }
 
 /**
@@ -33,9 +43,14 @@ export interface World {
  * Must include state machine for movement based on game time.
  */
 const createWorld: () => World = () => {
+  // Server side data
   let ships = new Array<Ship>()
   let shells = new Array<Shell>()
+  // Client side data
+  let hits = new Array<Hit>()
+  let score = 0
 
+  // Debug
   let simTimeArray = new Array<number>()
   let sendTimeArray = new Array<number>()
   let debug = "Debug"
@@ -44,6 +59,17 @@ const createWorld: () => World = () => {
 
   return {
     debug: () => debug,
+    hits: () => {
+      hits.forEach(hit => hit.phase += 1/60)
+      hits = hits.filter(h => h.phase < 1)
+      return hits
+    },
+    addHit: (hit: HitShip) => {
+      hits.push({position: hit.position, phase: 0})
+    },
+    incrementScore: () => score++,
+    decrementScore: () => score--,
+    score: () => score,
     ships: (t) => ships,
     shells: () => shells,
     update: (data: UpdateData) => {

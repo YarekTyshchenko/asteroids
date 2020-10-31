@@ -1,6 +1,6 @@
 import * as React from "react";
 import Victor from "victor";
-import {Shell, Ship, World} from "../service/World";
+import {Hit, Shell, Ship, World} from "../service/World";
 import {resizeCanvasToDisplaySize, useAnimationFrame} from "../util";
 
 export interface Point {
@@ -9,32 +9,38 @@ export interface Point {
 }
 
 const SensorsAndNavigation: React.FC<{world: World, zoom: number}> = ({world, zoom}) => {
+  const [score, setScore] = React.useState<number>(world.score())
   const canvasRef = React.createRef<HTMLCanvasElement>();
-
   useAnimationFrame(delta => {
     const timeMs = Date.now()
-    const ships = world.ships(timeMs);
+    const ships = world.ships(timeMs)
     const shells = world.shells()
+    const hits = world.hits()
+    setScore(world.score())
     const canvas = canvasRef.current
     if (canvas) {
       resizeCanvasToDisplaySize(canvas)
       const ctx = canvas.getContext('2d')!
       const drawer = canvasDrawer(ctx, {x: 0, y: 0}, zoom)
-      drawer.text(`Delta: ${delta}`, 10, 10)
-      drawer.text(world.debug(), 10, 20)
-      ships.forEach(s => {
-        drawer.ship(s)
+      drawer.text(world.debug(), 10, 10, "gray")
+      // drawer.text(`Delta: ${delta}`, 10, 20, "gray")
+      hits.forEach(hit => {
+        drawer.hit(hit)
       })
       shells.forEach(s => {
         drawer.shell(s)
       })
+      ships.forEach(s => {
+        drawer.ship(s)
+      })
     }
   })
+
   return (
     <>
       <canvas ref={canvasRef} />
-      <div className="absolute">
-
+      <div className="absolute score">
+        Score: {score}
       </div>
     </>
   )
@@ -87,6 +93,7 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       // Ship
       ctx.lineWidth = 1
       ctx.strokeStyle = "white"
+      ctx.fillStyle = "black"
 
       const [nose, left, right] = shipBodyParts.map(v => v.clone().rotate(s.bearing).add(new Victor(l.x, l.y)))
       ctx.beginPath()
@@ -97,6 +104,8 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       // right
       ctx.lineTo(right.x, right.y)
       ctx.lineTo(nose.x, nose.y)
+      ctx.closePath()
+      ctx.fill()
       ctx.stroke()
 
       // thrust cone
@@ -111,12 +120,22 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     },
     shell: (s: Shell) => {
       ctx.lineWidth = 1
-      ctx.strokeStyle = "red"
+      ctx.strokeStyle = "white"
       ctx.beginPath()
       const l = local(s.position)
       const shellTip = new Victor(5, 0).rotate(s.bearing).add(new Victor(l.x, l.y))
       ctx.moveTo(l.x, l.y)
       ctx.lineTo(shellTip.x, shellTip.y)
+      ctx.stroke()
+    },
+    hit: (hit: Hit) => {
+      ctx.lineWidth = 1
+      const d = Math.round((1-hit.phase)*255).toString(16).padStart(2, "0")
+      console.log(d)
+      ctx.strokeStyle = `#${d}${d}${d}`
+      const l = local(hit.position)
+      ctx.beginPath()
+      ctx.arc(l.x, l.y, hit.phase*20, 0, 2 * Math.PI, false)
       ctx.stroke()
     },
     centreGraduation: () => {
@@ -129,8 +148,8 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
       ctx.lineTo(Math.floor(width/2)+0.5, height)
       ctx.stroke()
     },
-    text: (text: string, x: number, y: number) => {
-      ctx.fillStyle = "white"
+    text: (text: string, x: number, y: number, colour: string = "white") => {
+      ctx.fillStyle = colour
       ctx.fillText(text, x, y)
     },
     grid: (tileSize: number = 100) => {

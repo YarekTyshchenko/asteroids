@@ -25,7 +25,14 @@ export const newShell: (s: Ship) => Shell = ship => {
   }
 }
 
-export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => Shell[] = (shells, shipsTree) => {
+export interface HitShip {
+  owner: string
+  position: Vector
+  target: string
+}
+
+export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => { shells: Shell[], hits: HitShip[]} = (shells, shipsTree) => {
+  const hits = []
   for(const shell of shells.values()) {
     const shellPosition = new Victor(shell.velocity, 0).rotate(shell.bearing).add(new Victor(shell.position.x, shell.position.y))
     shell.position.x = shellPosition.x
@@ -40,9 +47,19 @@ export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => Shell
     }).filter(s => v1.distance(new Victor(s.position.x, s.position.y)) < COLLISION_DISTANCE/2)
 
     if (collide.length > 0) {
+      const collisionTarget = collide.sort(((a, b) => {
+        const av = new Victor(a.position.x, a.position.y)
+        const bv = new Victor(b.position.x, b.position.y)
+        return av.distance(shellPosition) - bv.distance(shellPosition)
+      })).shift()
+
       //log.info(`Shell hit ${collide.map(a => a.id)}`)
+      hits.push({owner: shell.owner, position: collisionTarget.position, target: collisionTarget.id})
       shell.ttl = 0
     }
   }
-  return shells.filter(s => s.ttl > 0)
+  return {
+    shells: shells.filter(s => s.ttl > 0),
+    hits
+  }
 }

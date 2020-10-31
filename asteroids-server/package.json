@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc --project . --outDir ./dist",
-    "watch": "tsc-watch --project . --outDir ./dist --onSuccess 'node ./dist/server.js'",
+    "start": "tsc-watch --project . --outDir ./dist --onSuccess 'node ./dist/server.js'",
     "test": "jest"
   },
   "devDependencies": {
