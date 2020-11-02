@@ -31,9 +31,9 @@ const WorldProvider: React.FC = ({children}) => {
           })
           socket.on("shellHitShip", (data: HitShip) => {
             world.addHit(data)
-            if (data.target == socket.id) {
+            if (data.target === socket.id) {
               world.decrementScore()
-            } else if (data.owner == socket.id) {
+            } else if (data.owner === socket.id) {
               world.incrementScore()
             }
           })
