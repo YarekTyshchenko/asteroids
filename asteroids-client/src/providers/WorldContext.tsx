@@ -9,9 +9,8 @@ export interface UpdateData {
   ships: Ship[],
   shells: Shell[],
   simulationTime: number,
-  simulationFrameGap: number,
   sendTime: number,
-  sendTimeFrameGap: number,
+  frameGap: number,
   time: number,
 }
 

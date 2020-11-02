@@ -24,6 +24,10 @@ let shells: Shell[] = new Array<Shell>()
 let simulationTimeStart: [number, number] = [0, 0]
 let simulationTime: [number, number]
 let simulationFrameGap: [number, number]
+
+let sendTimeStart: [number, number] = [0, 0]
+let sendTime: [number, number] = [0, 0]
+
 // Simulation
 setInterval(() => {
   simulationFrameGap = process.hrtime(simulationTimeStart)
@@ -41,22 +45,14 @@ setInterval(() => {
     shipsTree.insert(respawn)
   })
   simulationTime = process.hrtime(simulationTimeStart)
-}, 1000/60)
-
-let sendTimeStart: [number, number] = [0, 0]
-let sendTime: [number, number] = [0, 0]
-// Data exchange
-setInterval(() => {
-  const delayBetweenFrames = process.hrtime(sendTimeStart)
   sendTimeStart = process.hrtime()
   io.emit("update", {
     time: Date.now(),
     ships: Array.from(ships.values()),
     shells: shells,
+    frameGap: hrtime(simulationFrameGap),
     simulationTime: hrtime(simulationTime),
-    simulationFrameGap: hrtime(delayBetweenFrames),
     sendTime: hrtime(sendTime),
-    sendTimeFrameGap: hrtime(delayBetweenFrames)
   })
   sendTime = process.hrtime(sendTimeStart)
 }, 1000/60)
