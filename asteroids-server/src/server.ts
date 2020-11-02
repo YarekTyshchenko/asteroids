@@ -46,7 +46,7 @@ setInterval(() => {
   })
   simulationTime = process.hrtime(simulationTimeStart)
   sendTimeStart = process.hrtime()
-  io.emit("update", {
+  io.volatile.emit("update", {
     time: Date.now(),
     ships: Array.from(ships.values()),
     shells: shells,
