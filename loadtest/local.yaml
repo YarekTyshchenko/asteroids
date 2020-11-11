@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:3001"
+  socketio:
+    transports: ["websocket"]
+  phases:
+    - duration: 1
+      arrivalRate: 200
+scenarios:
+  - name: Socket
+    engine: socketio
+    flow:
+    - log: "testing websocket"
+    - think: 10
+    - emit:
+        channel: command
+        data: fire
+    - think: 9999
