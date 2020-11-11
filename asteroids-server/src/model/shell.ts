@@ -1,5 +1,4 @@
 import {COLLISION_DISTANCE, MAX_SPEED} from "../constants";
-import {log} from "../logger";
 import {ShipRBush} from "../server";
 import {Ship} from "./ship";
 import {Vector} from "./vector";
@@ -14,11 +13,14 @@ export interface Shell {
 }
 
 export const newShell: (s: Ship) => Shell = ship => {
-  const shellVector = new Victor(MAX_SPEED*2, 0).rotate(ship.bearing).add(new Victor(ship.velocity.x, ship.velocity.y))
+  const shipVelocityVector = new Victor(ship.velocity.x, ship.velocity.y)
+  const shellShootVelocityVector = new Victor(MAX_SPEED*2, 0).rotate(ship.bearing)
+  const shellVector = shellShootVelocityVector.add(shipVelocityVector)
+
   const shellPosition = new Victor(COLLISION_DISTANCE, 0).rotate(ship.bearing).add(new Victor(ship.position.x, ship.position.y))
   return {
     owner: ship.id,
-    bearing: ship.bearing,
+    bearing: shellVector.direction(),
     position: { x: shellPosition.x, y: shellPosition.y },
     velocity: shellVector.length(),
     ttl: 100,
@@ -34,7 +36,7 @@ export interface HitShip {
 export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => { shells: Shell[], hits: HitShip[]} = (shells, shipsTree) => {
   const hits = []
   for(const shell of shells.values()) {
-    const shellPosition = new Victor(shell.velocity, 0).rotate(shell.bearing).add(new Victor(shell.position.x, shell.position.y))
+    const shellPosition = new Victor(shell.position.x, shell.position.y).add(new Victor(shell.velocity, 0).rotate(shell.bearing))
     shell.position.x = shellPosition.x
     shell.position.y = shellPosition.y
     shell.ttl -= 1;

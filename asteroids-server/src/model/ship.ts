@@ -3,7 +3,6 @@ import {log} from "../logger";
 import {ShipRBush} from "../server";
 import {Vector} from "./vector";
 import Victor = require("victor");
-import get = Reflect.get;
 
 export interface Ship {
   id: string,
@@ -33,9 +32,9 @@ export const recalculateShips = (ships: Map<string, Ship>, shipsTree: ShipRBush)
     const finalVector = shipVelocity.add(thrustVector)
     const finalBearing = finalVector.angle()
     let finalSpeed = finalVector.length()
-    if (finalSpeed > MAX_SPEED) {
-      finalSpeed = MAX_SPEED
-    }
+    // if (finalSpeed > MAX_SPEED) {
+    //   finalSpeed = MAX_SPEED
+    // }
     const velocity = new Victor(finalSpeed, 0).rotate(finalBearing)
     ship.velocity.x = velocity.x
     ship.velocity.y = velocity.y
