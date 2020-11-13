@@ -27,6 +27,13 @@ const WorldProvider: React.FC = ({children}) => {
         { socket => {
           socket.on("update", (data: UpdateData) => {
             world.update(data)
+            if (!world.playerShip.isStopped) {
+              const playerShip = data.ships.find(s => s.id === socket.id)
+              if (playerShip) {
+                world.playerShip.next(playerShip)
+                //world.playerShip.complete()
+              }
+            }
           })
           socket.on("shellHitShip", (data: HitShip) => {
             world.addHit(data)

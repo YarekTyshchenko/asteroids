@@ -1,4 +1,5 @@
 import {HitShip, UpdateData} from "../providers/WorldContext";
+import {Subject} from "rxjs";
 
 export interface Vector {
   x: number,
@@ -27,6 +28,7 @@ export interface Hit {
 }
 
 export interface World {
+  playerShip: Subject<Ship>
   ships: (timeMs: number) => Ship[]
   shells: () => Shell[]
   hits: () => Hit[]
@@ -34,8 +36,23 @@ export interface World {
   addHit: (hit: HitShip) => void
   incrementScore: () => void
   decrementScore: () => void
-  score: () => number
+  score: {
+    currentScore: () => number
+    score: Subject<number>
+  }
   debug: () => string
+}
+
+const ScoreState = () => {
+  let score = 0
+  const subject = new Subject<number>()
+  subject.subscribe(s => {
+    score += s
+  })
+  return {
+    currentScore: () => score,
+    score: subject,
+  }
 }
 
 /**
@@ -48,7 +65,9 @@ const createWorld: () => World = () => {
   let shells = new Array<Shell>()
   // Client side data
   let hits = new Array<Hit>()
-  let score = 0
+
+  const playerShip = new Subject<Ship>()
+  const score = ScoreState()
 
   // Debug
   let simTimeArray = new Array<number>()
@@ -58,8 +77,10 @@ const createWorld: () => World = () => {
   const rp = (n: number) => String(Math.round(n)).padStart(3)
 
   return {
+    playerShip: playerShip,
     debug: () => debug,
     hits: () => {
+      // TODO: Make this work via time delta
       hits.forEach(hit => hit.phase += 1/60)
       hits = hits.filter(h => h.phase < 1)
       return hits
@@ -67,9 +88,13 @@ const createWorld: () => World = () => {
     addHit: (hit: HitShip) => {
       hits.push({position: hit.position, phase: 0})
     },
-    incrementScore: () => score++,
-    decrementScore: () => score--,
-    score: () => score,
+    incrementScore: () => {
+      score.score.next(+1)
+    },
+    decrementScore: () => {
+      score.score.next(-1)
+    },
+    score: score,
     ships: (t) => ships,
     shells: () => shells,
     update: (data: UpdateData) => {

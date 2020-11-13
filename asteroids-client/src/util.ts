@@ -14,7 +14,7 @@ export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement, multiplier:
   if (canvas.width !== width ||  canvas.height !== height) {
     canvas.width  = width;
     canvas.height = height;
-    console.log(`W: ${canvas.clientHeight} H: ${canvas.clientWidth}`)
+    //console.log(`W: ${canvas.clientHeight} H: ${canvas.clientWidth}`)
     return true;
   }
   return false;

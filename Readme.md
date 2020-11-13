@@ -5,6 +5,7 @@ Basically asteroids, but multiplayer
 
 - No anti-lag
 - Infinite field
+- Sector display
 
 Todo:
 -----
@@ -13,9 +14,7 @@ Serverside:
 
 - Add asteroids
 - Health
-- Minimap where player and asteroids are
 
 Clientside:
-- Scroll the map when player out of view
-- Add minimap
 
+- Show where the nearest asteroids are

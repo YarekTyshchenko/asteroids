@@ -1,58 +1,53 @@
 import * as React from "react";
 import Victor from "victor";
 import {Hit, Shell, Ship, World} from "../service/World";
-import {resizeCanvasToDisplaySize, useAnimationFrame} from "../util";
+import {useAnimationFrame} from "../util";
+import {CanvasState} from "./Canvas";
 
 export interface Point {
   x: number
   y: number
 }
 
-const SensorsAndNavigation: React.FC<{world: World, zoom: number}> = ({world, zoom}) => {
-  const [score, setScore] = React.useState<number>(world.score())
-  const canvasRef = React.createRef<HTMLCanvasElement>();
+const calculateCentreFromPlayer = (playerId: string, ships: Ship[], width: number, height: number) => {
+  const ship = ships.find(s => s.id === playerId)
+  if (!ship) {
+    return {x: 0, y: 0}
+  } else {
+    return {x: Math.round(ship.position.x / width) * width, y: Math.round(ship.position.y / height) * height}
+  }
+}
+
+const MainView: React.FC<{canvas: CanvasState, world: World, socket: SocketIOClient.Socket}> = ({canvas, world, socket}) => {
   useAnimationFrame(delta => {
     const timeMs = Date.now()
     const ships = world.ships(timeMs)
     const shells = world.shells()
     const hits = world.hits()
-    setScore(world.score())
-    const canvas = canvasRef.current
-    if (canvas) {
-      resizeCanvasToDisplaySize(canvas)
-      const ctx = canvas.getContext('2d')!
-      const drawer = canvasDrawer(ctx, {x: 0, y: 0}, zoom)
-      drawer.text(world.debug(), 10, 10, "gray")
-      // drawer.text(`Delta: ${delta}`, 10, 20, "gray")
-      hits.forEach(hit => {
-        drawer.hit(hit)
-      })
-      shells.forEach(s => {
-        drawer.shell(s)
-      })
-      ships.forEach(s => {
-        drawer.ship(s)
-      })
-    }
+    const centre = calculateCentreFromPlayer(socket.id, ships, canvas.width, canvas.height)
+    const drawer = canvasDrawer(canvas.ctx, centre)
+    drawer.text(world.debug(), 10, 10, "gray")
+    // drawer.text(`Delta: ${delta}`, 10, 20, "gray")
+    hits.forEach(hit => {
+      drawer.hit(hit)
+    })
+    shells.forEach(s => {
+      drawer.shell(s)
+    })
+    ships.forEach(s => {
+      drawer.ship(s)
+    })
   })
-
-  return (
-    <>
-      <canvas ref={canvasRef} />
-      <div className="absolute score">
-        Score: {score}
-      </div>
-    </>
-  )
+  return null
 }
 
-const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number) => {
+const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point) => {
   const width = ctx.canvas.clientWidth
   const height = ctx.canvas.clientHeight
   const local = (p: Point): Point => {
     return ({
-      x: p.x / zoom - centre.x / zoom + width/2,
-      y: p.y / zoom - centre.y / zoom + height/2
+      x: p.x - centre.x + width/2,
+      y: p.y - centre.y + height/2
     })
   }
   ctx.font = '8pt Mono'
@@ -131,7 +126,6 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
     hit: (hit: Hit) => {
       ctx.lineWidth = 1
       const d = Math.round((1-hit.phase)*255).toString(16).padStart(2, "0")
-      console.log(d)
       ctx.strokeStyle = `#${d}${d}${d}`
       const l = local(hit.position)
       ctx.beginPath()
@@ -183,4 +177,4 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point, zoom: number
   }
 }
 
-export { SensorsAndNavigation, useAnimationFrame, canvasDrawer }
+export { MainView, useAnimationFrame, canvasDrawer }

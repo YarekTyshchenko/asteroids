@@ -17,6 +17,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.3.0",
+    "rxjs": "^6.6.3",
     "semantic-ui-react": "^0.88.2",
     "socket.io-client": "^2.3.1",
     "typescript": "~3.7.2",
@@ -30,6 +31,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "@types/rx": "^4.1.2",
     "gh-pages": "^3.1.0"
   },
   "scripts": {
