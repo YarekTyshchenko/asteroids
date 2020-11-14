@@ -1,5 +1,7 @@
 import {COLLISION_DISTANCE, MAX_SPEED} from "../constants";
+import {log} from "../logger";
 import {ShipRBush} from "../server";
+import {AsteroidRBush} from "./asteroid";
 import {Ship} from "./ship";
 import {Vector} from "./vector";
 import Victor = require("victor");
@@ -33,7 +35,7 @@ export interface HitShip {
   target: string
 }
 
-export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => { shells: Shell[], hits: HitShip[]} = (shells, shipsTree) => {
+export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush, asteroidTree: AsteroidRBush) => { shells: Shell[], hits: HitShip[]} = (shells, shipsTree, asteroidTree) => {
   const hits = []
   for(const shell of shells.values()) {
     const shellPosition = new Victor(shell.position.x, shell.position.y).add(new Victor(shell.velocity, 0).rotate(shell.bearing))
@@ -58,6 +60,22 @@ export const recalculateShells: (shells: Shell[], shipsTree: ShipRBush) => { she
       //log.info(`Shell hit ${collide.map(a => a.id)}`)
       hits.push({owner: shell.owner, position: collisionTarget.position, target: collisionTarget.id})
       shell.ttl = 0
+    }
+    const collide2 = asteroidTree.search({
+      maxX: shellPosition.x,
+      maxY: shellPosition.y,
+      minX: shellPosition.x,
+      minY: shellPosition.y,
+    }).filter(s => v1.distance(s.position) < s.mass/2)
+    if (collide2.length > 0) {
+      shell.ttl = 0
+      //log.info(`Asteroid hit ${JSON.stringify(collide2)} by ship ${shell.owner}`)
+      collide2.forEach(a => {
+        if (!a.static) {
+          a.hit = true
+          hits.push({owner: shell.owner, position: a.position, target: "asteroid"})
+        }
+      })
     }
   }
   return {

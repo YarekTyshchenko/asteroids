@@ -1,4 +1,4 @@
-import {HitShip, UpdateData} from "../providers/WorldContext";
+import {Asteroid, HitShip, UpdateData} from "../providers/WorldContext";
 import {Subject} from "rxjs";
 
 export interface Vector {
@@ -32,6 +32,7 @@ export interface World {
   ships: (timeMs: number) => Ship[]
   shells: () => Shell[]
   hits: () => Hit[]
+  asteroids: () => Asteroid[]
   update: (data: UpdateData) => void
   addHit: (hit: HitShip) => void
   incrementScore: () => void
@@ -63,6 +64,7 @@ const createWorld: () => World = () => {
   // Server side data
   let ships = new Array<Ship>()
   let shells = new Array<Shell>()
+  let asteroids = new Array<Asteroid>()
   // Client side data
   let hits = new Array<Hit>()
 
@@ -97,9 +99,11 @@ const createWorld: () => World = () => {
     score: score,
     ships: (t) => ships,
     shells: () => shells,
+    asteroids: () => asteroids,
     update: (data: UpdateData) => {
       ships = data.ships
       shells = data.shells
+      asteroids = data.asteroids
 
       const timeDelta = Date.now() - data.time
 

@@ -1,13 +1,20 @@
 import * as React from 'react';
+import Victor from "victor";
 import {createWorld, Shell, Ship, Vector, World} from "../service/World";
 import {SocketConsumer} from "./SocketContext";
 
 const world = createWorld()
 const WorldContext = React.createContext<World>(world)
 
+export interface Asteroid {
+  position: Victor
+  velocity: Victor
+  mass: number
+}
 export interface UpdateData {
   ships: Ship[],
   shells: Shell[],
+  asteroids: Asteroid[],
   simulationTime: number,
   sendTime: number,
   frameGap: number,
@@ -37,7 +44,7 @@ const WorldProvider: React.FC = ({children}) => {
           })
           socket.on("shellHitShip", (data: HitShip) => {
             world.addHit(data)
-            if (data.target === socket.id) {
+            if (data.target === socket.id || data.target === "earth") {
               world.decrementScore()
             } else if (data.owner === socket.id) {
               world.incrementScore()

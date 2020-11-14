@@ -1,6 +1,7 @@
 import {COLLISION_DISTANCE, MAX_SPEED} from "../constants";
 import {log} from "../logger";
 import {ShipRBush} from "../server";
+import {AsteroidRBush} from "./asteroid";
 import {Vector} from "./vector";
 import Victor = require("victor");
 
@@ -16,8 +17,8 @@ export interface Ship {
 export const newShip: (id: string, r: number) => Ship = (id, r) => ({
   id,
   bearing: Math.random()*2*Math.PI,
-  position: {x: Math.random()*r-r/2, y: Math.random()*r-r/2},
-  velocity: {x: 0, y: 0},
+  position: new Victor(r, 0).rotate(Math.random()*2*Math.PI),
+  velocity: {x: Math.random(), y: Math.random()},
   thrust: 0,
   rotation: 0
 })
@@ -27,9 +28,10 @@ export const recalculateShips = (ships: Map<string, Ship>, shipsTree: ShipRBush)
     shipsTree.remove(ship)
     ship.bearing = ship.bearing + ship.rotation
     const shipVelocity = new Victor(ship.velocity.x, ship.velocity.y)
-
+    const gravity = new Victor(ship.position.x, ship.position.y).invert().normalize().multiplyScalar(1)
     const thrustVector = new Victor(ship.thrust, 0).rotate(ship.bearing)
-    const finalVector = shipVelocity.add(thrustVector)
+    const distance = new Victor(ship.position.x, ship.position.y).distance(new Victor(0, 0))
+    const finalVector = shipVelocity.add(thrustVector).add(gravity.multiplyScalar(1/distance))
     const finalBearing = finalVector.angle()
     let finalSpeed = finalVector.length()
     // if (finalSpeed > MAX_SPEED) {
@@ -65,14 +67,14 @@ export const recalculateShips = (ships: Map<string, Ship>, shipsTree: ShipRBush)
       const v2 = new Victor(otherShip.velocity.x, otherShip.velocity.y)
 
       // Impact speed in direction of the impact normal
-      const impulse = impactNormal.dot(v1.subtract(v2))
+      const impulse = impactNormal.dot(v1.clone().subtract(v2))
       // How much energy is conserved in the impact due to elasticity
       const eps = 0.5
-      const v1f = v1.subtract(impactNormal.multiplyScalar(impulse)).multiplyScalar(eps)
+      const v1f = v1.subtract(impactNormal.clone().multiplyScalar(impulse)).multiplyScalar(eps)
       ship.velocity.x = v1f.x
       ship.velocity.y = v1f.y
 
-      const v2f = v2.add(impactNormal.multiplyScalar(impulse)).multiplyScalar(eps)
+      const v2f = v2.add(impactNormal.clone().multiplyScalar(impulse)).multiplyScalar(eps)
       otherShip.velocity.x = v2f.x
       otherShip.velocity.y = v2f.y
     } else {

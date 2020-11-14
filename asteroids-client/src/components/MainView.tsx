@@ -1,5 +1,6 @@
 import * as React from "react";
 import Victor from "victor";
+import {Asteroid} from "../providers/WorldContext";
 import {Hit, Shell, Ship, World} from "../service/World";
 import {useAnimationFrame} from "../util";
 import {CanvasState} from "./Canvas";
@@ -24,6 +25,7 @@ const MainView: React.FC<{canvas: CanvasState, world: World, socket: SocketIOCli
     const ships = world.ships(timeMs)
     const shells = world.shells()
     const hits = world.hits()
+    const asteroids = world.asteroids()
     const centre = calculateCentreFromPlayer(socket.id, ships, canvas.width, canvas.height)
     const drawer = canvasDrawer(canvas.ctx, centre)
     drawer.text(world.debug(), 10, 10, "gray")
@@ -36,6 +38,9 @@ const MainView: React.FC<{canvas: CanvasState, world: World, socket: SocketIOCli
     })
     ships.forEach(s => {
       drawer.ship(s)
+    })
+    asteroids.forEach(a => {
+      drawer.asteroid(a)
     })
   })
   return null
@@ -76,14 +81,16 @@ const canvasDrawer = (ctx: CanvasRenderingContext2D, centre: Point) => {
   ]
 
   return {
+    asteroid: (a: Asteroid) => {
+      const l = local(a.position)
+      ctx.beginPath()
+      ctx.arc(l.x, l.y, a.mass/2, 0, 2 * Math.PI, false)
+      ctx.stroke()
+    },
     ship: (s: Ship) => {
       ctx.fillStyle = "white"
       const l = local(s.position)
       const localVector = new Victor(l.x, l.y)
-      //ctx.fillText(s.id, l.x, l.y)
-      // ctx.beginPath()
-      // ctx.arc(l.x, l.y, 7, 0, 2 * Math.PI, false)
-      // ctx.stroke()
 
       // Ship
       ctx.lineWidth = 1
