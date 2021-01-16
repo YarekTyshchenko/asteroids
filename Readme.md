@@ -3,18 +3,5 @@ Multiplayer Asteroids
 
 Basically asteroids, but multiplayer
 
-- No anti-lag
-- Infinite field
-- Sector display
+Thats your home planet in the centre, protect it from asteroids that are about
 
-Todo:
------
-
-Serverside:
-
-- Add asteroids
-- Health
-
-Clientside:
-
-- Show where the nearest asteroids are
