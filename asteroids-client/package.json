@@ -20,7 +20,7 @@
     "rxjs": "^6.6.3",
     "semantic-ui-react": "^0.88.2",
     "socket.io-client": "^2.3.1",
-    "typescript": "~3.7.2",
+    "typescript": "~3.8",
     "victor": "^1.1.0"
   },
   "devDependencies": {
