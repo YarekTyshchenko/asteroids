@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "nodemon": "^2.0.6",
     "rbush": "^2.0.2",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "tsc-watch": "^4.2.9",
     "typescript": "^4.0.5",
     "victor": "^1.1.0",
